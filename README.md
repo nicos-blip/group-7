@@ -21,6 +21,20 @@ Landing page interattiva a scorrimento (formato carosello a 6 slide) per il recl
 - **Vanilla JavaScript (ES6+)** (zero framework pesanti, 60fps costanti)
 - **SVG Vettoriali Inline**
 
+## 📬 Attivazione e Ricezione Candidature (Formspree)
+Il form è già configurato per inviare i dati in modo asincrono (AJAX) senza ricaricare la pagina, mostrando la schermata di conferma con spunta animata. Per ricevere le candidature nella tua casella email e nella dashboard web:
+
+1. Vai su [Formspree.io](https://formspree.io) e registrati gratuitamente con la tua email.
+2. Clicca su **"+ New Form"**, dagli un nome (es. `Candidature Ro-Ro Vision`) e crea il form.
+3. Copia l'ID del form o l'endpoint generato (ad esempio `https://formspree.io/f/mqkenwba`).
+4. Apri [index.html](file:///c:/Users/lenovo/Desktop/Uni/Startup/landing/gruppo_7/index.html), trova il tag `<form id="contactForm"` (Slide 6) e sostituisci `YOUR_FORMSPREE_ID` con il tuo ID reale:
+   ```html
+   <form id="contactForm" action="https://formspree.io/f/mqkenwba" method="POST" onsubmit="handleSubmit(event)">
+   ```
+5. **Fatto!** Ogni volta che qualcuno invia una candidatura:
+   - Riceverai immediatamente un'**email di notifica** con Nome, Cognome, Email, Ambito di competenza e Note.
+   - Troverai tutte le candidature salvate e consultabili nella **dashboard di Formspree**, esportabili anche in Excel/CSV.
+
 ## 🌐 Pubblicazione Gratuita su GitHub Pages
 Per rendere la landing page visibile online a chiunque:
 1. Crea un repository su [GitHub](https://github.com/new).
@@ -29,3 +43,4 @@ Per rendere la landing page visibile online a chiunque:
 4. Sotto **Build and deployment** seleziona il branch `main` (cartella `/root`) e clicca su **Save**.
 5. In circa 1 minuto il tuo sito sarà online all'indirizzo:
    `https://<tuo-username>.github.io/<nome-repo>/`
+

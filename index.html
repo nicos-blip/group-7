@@ -348,49 +348,51 @@
 
           <!-- Colonna Destra: Form Compatto e Ottimizzato -->
           <div class="form-wrap">
-            <form id="contactForm" onsubmit="handleSubmit(event)">
+            <form id="contactForm" action="https://formspree.io/f/xwllekjz" method="POST" onsubmit="handleSubmit(event)">
               <div class="form-grid">
                 <div class="form-field">
-                  <label class="flabel">Nome *</label>
-                  <input type="text" required placeholder="Mario" class="finput" />
+                  <label class="flabel" for="nome">Nome *</label>
+                  <input type="text" id="nome" name="nome" required placeholder="Mario" class="finput" />
                 </div>
                 <div class="form-field">
-                  <label class="flabel">Cognome *</label>
-                  <input type="text" required placeholder="Rossi" class="finput" />
+                  <label class="flabel" for="cognome">Cognome *</label>
+                  <input type="text" id="cognome" name="cognome" required placeholder="Rossi" class="finput" />
                 </div>
               </div>
 
               <div class="form-field">
-                <label class="flabel">Email *</label>
-                <input type="email" required placeholder="mario.rossi@studenti.it" class="finput" />
+                <label class="flabel" for="email">Email *</label>
+                <input type="email" id="email" name="email" required placeholder="mario.rossi@studenti.it" class="finput" />
               </div>
 
               <div class="form-field">
                 <label class="flabel">Ambito di competenza *</label>
                 <div class="role-pills">
                   <label class="role-pill">
-                    <input type="radio" name="role" value="cv" checked />
+                    <input type="radio" name="ruolo" value="AI / Computer Vision" checked />
                     <span><svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg> AI / Vision</span>
                   </label>
                   <label class="role-pill">
-                    <input type="radio" name="role" value="edge" />
+                    <input type="radio" name="ruolo" value="Edge AI / Jetson" />
                     <span><svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Edge / Jetson</span>
                   </label>
                   <label class="role-pill">
-                    <input type="radio" name="role" value="back" />
+                    <input type="radio" name="ruolo" value="Cloud / Backend" />
                     <span><svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg> Cloud / Back</span>
                   </label>
                   <label class="role-pill">
-                    <input type="radio" name="role" value="hw" />
+                    <input type="radio" name="ruolo" value="Hardware / TLC" />
                     <span><svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9"/><path d="M9 1v3"/><path d="M15 1v3"/><path d="M9 20v3"/><path d="M15 20v3"/><path d="M20 9h3"/><path d="M20 14h3"/><path d="M1 9h3"/><path d="M1 14h3"/></svg> Hardware / TLC</span>
                   </label>
                 </div>
               </div>
 
               <div class="form-field">
-                <label class="flabel">Link Profilo / Note (Opzionale)</label>
-                <input type="text" placeholder="GitHub, LinkedIn o Telegram" class="finput" />
+                <label class="flabel" for="note">Link Profilo / Note (Opzionale)</label>
+                <input type="text" id="note" name="note" placeholder="GitHub, LinkedIn o Telegram" class="finput" />
               </div>
+
+              <div id="errorMsg" style="display:none; font-size:0.85rem; color:#f87171; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); padding:10px 12px; border-radius:8px; margin-bottom:12px; text-align:left; line-height:1.4;"></div>
 
               <button type="submit" class="submit-btn" id="submitBtn">
                 <span id="btnText">Invia Candidatura →</span>
@@ -509,16 +511,61 @@
       startX = null;
     });
 
-    // Form
-    function handleSubmit(e) {
+    // Form Submission con Formspree (Invio AJAX asincrono senza ricaricamento)
+    async function handleSubmit(e) {
       e.preventDefault();
+      const form = document.getElementById('contactForm');
       const btn = document.getElementById('submitBtn');
+      const btnText = document.getElementById('btnText');
+      const errorMsg = document.getElementById('errorMsg');
+
+      if (errorMsg) errorMsg.style.display = 'none';
       btn.disabled = true;
-      document.getElementById('btnText').textContent = 'Invio in corso...';
-      setTimeout(() => {
-        document.getElementById('contactForm').style.display = 'none';
-        document.getElementById('successMsg').style.display = 'block';
-      }, 900);
+      btnText.textContent = 'Invio in corso...';
+
+      const actionUrl = form.getAttribute('action') || '';
+
+      // Controllo se l'action non è configurata o contiene ancora un placeholder fittizio
+      if (!actionUrl || actionUrl.includes('YOUR_FORMSPREE_ID') || !actionUrl.startsWith('https://')) {
+        setTimeout(() => {
+          btn.disabled = false;
+          btnText.textContent = 'Invia Candidatura →';
+          if (errorMsg) {
+            errorMsg.innerHTML = '⚠️ <strong>Configurazione necessaria:</strong> inserisci il tuo Formspree Form ID nell\'attributo <code>action</code> del tag <code>&lt;form&gt;</code> in <code>index.html</code> (es. <code>https://formspree.io/f/xyzabkd</code>).';
+            errorMsg.style.display = 'block';
+          }
+        }, 400);
+        return;
+      }
+
+      try {
+        const formData = new FormData(form);
+        const response = await fetch(actionUrl, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          form.style.display = 'none';
+          document.getElementById('successMsg').style.display = 'block';
+        } else {
+          const data = await response.json().catch(() => ({}));
+          const errMsg = data.errors ? data.errors.map(err => err.message).join(', ') : 'Errore durante la trasmissione dei dati.';
+          throw new Error(errMsg);
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btnText.textContent = 'Invia Candidatura →';
+        if (errorMsg) {
+          errorMsg.innerHTML = '❌ ' + (err.message || 'Si è verificato un errore durante l\'invio. Riprova più tardi.');
+          errorMsg.style.display = 'block';
+        } else {
+          alert('Si è verificato un errore durante l\'invio. Riprova più tardi.');
+        }
+      }
     }
 
     
